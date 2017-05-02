@@ -1,12 +1,19 @@
+#!/usr/bin/env python3
+
 import sys
 import os
 
 import glob
 import jinja2
 
-from ctbb_pipeline_library import ctbb_pipeline_library as ctbb_plib
-import pypeline as pype
-from pypeline import load_config
+import CTBB_Pipeline
+from CTBB_Pipeline.ctbb_pipeline_library import ctbb_pipeline_library as ctbb_plib
+from CTBB_Pipeline import pypeline
+from CTBB_Pipeline.pypeline import load_config
+
+#from ctbb_pipeline_library import ctbb_pipeline_library as ctbb_plib
+#import pypeline as pype
+#from pypeline import load_config
 
 def usage():
     print('  usage: ctbb_pipeline_qa_docs.py /path/to/config/file.yml /path/to/library')
@@ -69,7 +76,9 @@ if __name__=="__main__":
         internal_ids.sort()
 
         # We want to make one page for each metric/test
-        loader = jinja2.FileSystemLoader(searchpath=os.path.dirname(os.path.abspath(__file__)))
+        module_path=os.path.dirname(CTBB_Pipeline.__file__)
+        loader = jinja2.FileSystemLoader(searchpath=os.path.join(module_path,"data"))
+
         env = jinja2.Environment(loader=loader)
 
         for f in qa_files:            
@@ -92,9 +101,9 @@ if __name__=="__main__":
                     "kernels":config["kernels"],
                     "doses":config["doses"],
                 }
-                
+
                 template = env.get_template("qa_template.tpl")
-                
+
                 with open(output_filepath, "w") as f_result:
                     f_result.write(template.render(vars))
 

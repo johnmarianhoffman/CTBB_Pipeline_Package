@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import os
 
@@ -9,10 +11,10 @@ if __name__=="__main__":
 
     pipeline_processes=['ctbb_simdose','ctbb_recon','ctbb_pipeline_daemon.py','ctbb_queue_item.py']
     
-    fid=tempfile.TemporaryFile()
+    fid=tempfile.TemporaryFile(mode='w+')
     
     # Get process list
-    p=call(['ps','aux'],stdout=fid,stderr=fid,env={'LANG':'C'});    
+    p=call(['ps','aux'],stdout=fid,stderr=fid,env={'LANG':'C'});
     fid.seek(0,0);
     output=fid.read()
 

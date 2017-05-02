@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
+
 import sys
 import os
 
-from ctbb_pipeline_library import ctbb_pipeline_library as ctbb_lib
-import pypeline as pype
-from pypeline import mutex,load_config
+from CTBB_Pipeline.ctbb_pipeline_library import ctbb_pipeline_library as ctbb_lib
+from CTBB_Pipeline import pypeline as pype
+from CTBB_Pipeline.pypeline import mutex,load_config
 
 from os.path import abspath
 

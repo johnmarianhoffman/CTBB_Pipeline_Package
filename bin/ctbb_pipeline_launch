@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import os
 
@@ -5,13 +7,17 @@ import yaml
 import logging
 import traceback
 
-from ctbb_pipeline_library import ctbb_pipeline_library as ctbb_plib
-import pypeline as pype
-from pypeline import mutex,load_config
+from CTBB_Pipeline.ctbb_pipeline_library import ctbb_pipeline_library as ctbb_plib
+from CTBB_Pipeline import pypeline as pype
+from CTBB_Pipeline.pypeline import mutex,load_config
+
+#from ctbb_pipeline_library import ctbb_pipeline_library as ctbb_plib
+#import pypeline as pype
+#from pypeline import mutex,load_config
 
 def usage():
-    logging.info('usage: ctbb_pipeline_launch.py /path/to/config/file.yaml')
-    logging.info('    Copyright (c) John Hoffman 2016')
+    print('usage: ctbb_pipeline_launch.py /path/to/config/file.yaml')
+    print('    Copyright (c) John Hoffman 2016')
 
 def flush_jobs_to_queue(config,case_list,library):
     # inputs are:
@@ -71,9 +77,10 @@ if __name__=='__main__':
     
     # Conigure how to launch pipeline based on command line input
     run_dir=os.path.dirname(os.path.abspath(__file__))
-    
-    if (len(sys.argv) < 2):
+
+    if len(sys.argv) < 2:
         usage()
+        sys.exit()
     else:
         filepath=sys.argv[1]
 
@@ -110,7 +117,7 @@ if __name__=='__main__':
     
             # Launch the daemon in the background
             logging.info('Launching pipeline daemon')
-            command="python3 %s/ctbb_pipeline_daemon.py %s" % (run_dir,library.path)
+            command="ctbb_pipeline_daemon %s" % (library.path)
             os.system("nohup %s >/dev/null 2>&1 &" % command);
             
         # Configuration didn't load properly

@@ -13,6 +13,9 @@ import numpy as np
 
 path_file="\\\skynet\cvib\PechinTest2\scripts\paths.yml"
 
+def test_func():
+    print("pypeline successfully loaded")
+
 def touch(path):
     with open(path,'a'):
         os.utime(path,None);

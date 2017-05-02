@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # A script to mine queue item logs for data 
 
 import sys
@@ -7,7 +9,8 @@ import csv
 import numpy as np
 from datetime import datetime
 
-from ctbb_pipeline_library import ctbb_pipeline_library 
+from CTBB_Pipeline.ctbb_pipeline_library import ctbb_pipeline_library
+#from ctbb_pipeline_library import ctbb_pipeline_library 
 
 def mine_qi_logfile(filepath):
 
@@ -72,7 +75,7 @@ if __name__=="__main__":
     end_time=datetime.min;
 
     header_written=False
-    with open(os.path.join(logdir,'metrics.csv'),'wb') as f:
+    with open(os.path.join(logdir,'metrics.csv'),'w',newline="") as f:
         for filename in files:
             if 'qi' in filename:
                 metrics_dict=mine_qi_logfile(filename)

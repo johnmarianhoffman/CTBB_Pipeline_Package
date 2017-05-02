@@ -13,9 +13,11 @@ from hashlib import md5
 
 import traceback
 
-import pypeline as pype
-from pypeline import mutex
-            
+#import pypeline as pype
+#from pypeline import mutex
+from CTBB_Pipeline import pypeline as pype
+from CTBB_Pipeline.pypeline import mutex
+
 class ctbb_pipeline_library:
     path=None;
     mutex_dir=None;    
@@ -38,7 +40,6 @@ class ctbb_pipeline_library:
         
             self.load()
 
-        
     def initialize_new_library(self):
         touch(os.path.join(self.path,'.ctbb_pipeline_lib'))
         touch(os.path.join(self.path,'case_list.txt'))

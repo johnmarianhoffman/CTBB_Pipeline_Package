@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import os
 import logging
@@ -8,8 +10,11 @@ import shutil
 import csv
 import traceback
 
-from ctbb_pipeline_library import ctbb_pipeline_library as ctbb_plib
-from ctbb_pipeline_library import mutex
+#from ctbb_pipeline_library import ctbb_pipeline_library as ctbb_plib
+#from ctbb_pipeline_library import mutex
+
+from CTBB_Pipeline.ctbb_pipeline_library import ctbb_pipeline_library as ctbb_plib
+from CTBB_Pipeline.pypeline import mutex
 
 def isempty(obj):
     return not obj
@@ -108,7 +113,7 @@ class ctbb_daemon:
 
     def process_queue_item(self,qi,dev):
         logging.debug('Current queue item is: %s for device %s' % (qi,dev.name))
-        call_command = ('python3 %s/ctbb_queue_item.py %s %s %s' % (self.run_dir,qi,dev.name,self.pipeline_lib.path))
+        call_command = ('ctbb_queue_item %s %s %s' % (qi,dev.name,self.pipeline_lib.path))
         logging.debug('Sending to system call: %s' % call_command)
         self.__child_process__(call_command)
         

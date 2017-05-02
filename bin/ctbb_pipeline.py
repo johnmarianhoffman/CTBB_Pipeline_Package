@@ -4,7 +4,7 @@ import os
 import logging
 from subprocess import call
 from time import strftime
-from PyQt4 import QtGui, QtCore, uic
+from pyqtgraph.PyQt4 import QtGui, QtCore, uic
 import shutil
 
 import yaml
