@@ -32,6 +32,7 @@ def get_qa_files(recon_list):
     img_series_filepath=os.path.join(library.path,r["img_series_filepath"])
     img_dirpath=os.path.dirname(img_series_filepath)
     series_dirpath=os.path.dirname(img_dirpath)
+    print(series_dirpath)
     qa_dirpath=os.path.join(series_dirpath,'qa')
 
     # If the first image series
@@ -55,9 +56,10 @@ if __name__=="__main__":
         library=ctbb_plib(library_dirpath)
 
         # Get list of reconstructions and dictionary with patient ids
+        library.refresh_recon_list() # Update our paths in case we've switched platforms
         recon_list=library.get_recon_list()
         case_list = library.__get_case_list__() # two way dictionary with file hashes (to look up patient id)
-
+        
         # Get QA files available in library
         qa_files=get_qa_files(recon_list)
 

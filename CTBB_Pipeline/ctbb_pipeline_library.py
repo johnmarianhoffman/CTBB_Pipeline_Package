@@ -200,8 +200,13 @@ class ctbb_pipeline_library:
         
         # Get list of all IMG files in recon directory
         #paths=glob(os.path.join(self.path,'recon','*/*/*.img'))
+        print("Searching for IMG files...")
         paths=glob(os.path.join(self.path,'recon','*','*','*','*.img'))
 
+        if not paths:
+            print("Searching for HR2 files...")
+            paths=glob(os.path.join(self.path,'recon','*','*','*','*.hr2'))
+        
         # Parse paths into sensible things:
         filenames=[]
         csv_entries=[]
