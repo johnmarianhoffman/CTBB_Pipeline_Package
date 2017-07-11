@@ -119,32 +119,32 @@ class ctbb_pipeline_library:
         touch(os.path.join(self.path,'.proc','error'))
 
     def locate_raw_data(self,filepath):
-        case_list_mutex=mutex('case_list',self.mutex_dir)
-        case_list_mutex.lock()
+        #case_list_mutex=mutex('case_list',self.mutex_dir)
+        #case_list_mutex.lock()
+
+        with mutex('case_list',self.mutex_dir) as case_list_mutex:
         
-        # Returns either a hash value (of raw file) or "False" if raw data unavailable
-        case_list=self.__get_case_list__()
-
-        # Check if we already have file in library
-        if filepath in case_list.keys():
-            logging.info('File %s (%s) found case library' % (filepath,case_list[filepath]))
-            case_id=case_list[filepath]
-        else:
-            if os.path.exists(filepath):
-                local_file_info=self.__get_local_file_hash__(filepath)
-
-                digest=local_file_info[0]
-                tmp_path=local_file_info[1]
-                if not (digest in case_list.keys()):
-                    logging.info('Adding raw data file to library')
-                    self.__add_raw_data__(filepath,tmp_path,digest)
-                case_id=digest;
+            # Returns either a hash value (of raw file) or "False" if raw data unavailable
+            case_list=self.__get_case_list__()
+            
+            # Check if we already have file in library
+            if filepath in case_list.keys():
+                logging.info('File %s (%s) found case library' % (filepath,case_list[filepath]))
+                case_id=case_list[filepath]
             else:
-                # Requested file does not exist
-                logging.info('Requested raw data file does not exist')
-                case_id=False
-
-        case_list_mutex.unlock();
+                if os.path.exists(filepath):
+                    local_file_info=self.__get_local_file_hash__(filepath)
+            
+                    digest=local_file_info[0]
+                    tmp_path=local_file_info[1]
+                    if not (digest in case_list.keys()):
+                        logging.info('Adding raw data file to library')
+                        self.__add_raw_data__(filepath,tmp_path,digest)
+                    case_id=digest;
+                else:
+                    # Requested file does not exist
+                    logging.info('Requested raw data file does not exist')
+                    case_id=False            
         
         return case_id
 
@@ -153,31 +153,31 @@ class ctbb_pipeline_library:
 
         exit_status=0
 
-        case_list_mutex=mutex('case_list',self.mutex_dir)
-        case_list_mutex.lock()
+        #case_list_mutex=mutex('case_list',self.mutex_dir)
+        #case_list_mutex.lock()
 
-        case_list=self.__get_case_list__()
+        with mutex('case_list',self.mutex_dir) as case_list_mutex:
 
-        case_id=case_list[filepath]
-        logging.info('Case ID for current case is %s' % case_id)
-        full_dose_filepath=os.path.join(self.raw_dir,'100',case_id)
-        reduced_dose_filepath=os.path.join(self.raw_dir,str(dose),case_id)
-
-        # If reduction dir doesn't exist, create it.
-        if not os.path.isdir(os.path.join(self.raw_dir,str(dose))):
-            os.mkdir(os.path.join(self.raw_dir,str(dose)))
-        
-        if os.path.exists(reduced_dose_filepath):
-            logging.info('Reduced dose data found')
-        else:
-            logging.info('Reduced dose data not found.  Running dose reduction tool.')
-            system_call="ctbb_simdose %s %s %s" % ( full_dose_filepath,str(dose),reduced_dose_filepath )
-            logging.info('Sending the following call to system: %s' % system_call);
-            exit_status=self.__child_process__(system_call)
-            logging.info('Dose reduction job exited with exit status %s' % str(exit_status))
+            case_list=self.__get_case_list__()
             
-        case_list_mutex.unlock()
-
+            case_id=case_list[filepath]
+            logging.info('Case ID for current case is %s' % case_id)
+            full_dose_filepath=os.path.join(self.raw_dir,'100',case_id)
+            reduced_dose_filepath=os.path.join(self.raw_dir,str(dose),case_id)
+            
+            # If reduction dir doesn't exist, create it.
+            if not os.path.isdir(os.path.join(self.raw_dir,str(dose))):
+                os.mkdir(os.path.join(self.raw_dir,str(dose)))
+            
+            if os.path.exists(reduced_dose_filepath):
+                logging.info('Reduced dose data found')
+            else:
+                logging.info('Reduced dose data not found.  Running dose reduction tool.')
+                system_call="ctbb_simdose %s %s %s" % ( full_dose_filepath,str(dose),reduced_dose_filepath )
+                logging.info('Sending the following call to system: %s' % system_call);
+                exit_status=self.__child_process__(system_call)
+                logging.info('Dose reduction job exited with exit status %s' % str(exit_status))
+           
         return exit_status
 
     def get_recon_list(self):
@@ -200,11 +200,11 @@ class ctbb_pipeline_library:
         
         # Get list of all IMG files in recon directory
         #paths=glob(os.path.join(self.path,'recon','*/*/*.img'))
-        print("Searching for IMG files...")
+        #print("Searching for IMG files...")        
         paths=glob(os.path.join(self.path,'recon','*','*','*','*.img'))
 
         if not paths:
-            print("Searching for HR2 files...")
+            #print("Searching for HR2 files...")
             paths=glob(os.path.join(self.path,'recon','*','*','*','*.hr2'))
         
         # Parse paths into sensible things:
