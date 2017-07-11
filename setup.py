@@ -19,6 +19,7 @@ setup(name='CTBB_Pipeline',
           "jinja2",
           "pyqtgraph",
           "pycuda",
+          "xmltodict",
           ],
       scripts=[
           "bin/ctbb_pipeline_daemon",
