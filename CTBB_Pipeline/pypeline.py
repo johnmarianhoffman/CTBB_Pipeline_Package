@@ -97,21 +97,28 @@ class mutex:
     name=None;
     mutex_dir=None;
     mutex_file=None;
-    
+
     def __init__(self,name,mutex_dir):
         self.name=name
-        self.mutex_dir=mutex_dir;
-        self.mutex_file=os.path.join(mutex_dir,name);
-        
+        self.mutex_dir=mutex_dir
+        self.mutex_file=os.path.join(mutex_dir,name)
+
+    def __enter__(self):
+        self.lock()
+        return self
+
+    def __exit__(self,type,value,traceback):
+        self.unlock()
+
     def lock(self):
         # If mutex alread locked, wait for other process to unlock
         while os.path.exists(self.mutex_file):
             logging.debug('Mutex ' + self.name  + ' locked. Sleeping and trying again')
             time.sleep(5)
-        touch(self.mutex_file)            
+        touch(self.mutex_file)
 
     def unlock(self):
-        os.remove(self.mutex_file);
+        os.remove(self.mutex_file)
 
     def check_state(self):
         state=os.path.exists(self.mutex_file)

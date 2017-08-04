@@ -68,18 +68,24 @@ def mine_qi_logfile(filepath):
     # Fetch time:
     tdelta=extract_logfile_time('END: FETCH RAW')-extract_logfile_time('START: FETCH RAW')
     #print('Time to retrieve raw data: %.2f' % tdelta.total_seconds());
-    metrics['time_fetch_raw']=tdelta.total_seconds()    
+    metrics['time_fetch_raw']=tdelta.total_seconds()
 
     # Simdose execution time:
     tdelta=extract_logfile_time('END: DOSE REDUCTION')-extract_logfile_time('START: DOSE REDUCTION')
     #print('Dose reduction time: %.2f' % tdelta.total_seconds()); 
-    metrics['time_dose_reduction']=tdelta.total_seconds()       
+    metrics['time_dose_reduction']=tdelta.total_seconds()
 
     # Recon execution time:
     tdelta=extract_logfile_time('END: RECON')-extract_logfile_time('START: RECON')
     #print('Recon time: %.2f' % tdelta.total_seconds());
     metrics['time_recon']=tdelta.total_seconds()
 
+    if (metrics['time_total']<0 or
+        metrics['time_fetch_raw']<0 or
+        metrics['time_dose_reduction']<0 or
+        metrics['time_recon']<0):
+        metrics=None
+    
     return metrics
 
 if __name__=="__main__":
@@ -98,6 +104,9 @@ if __name__=="__main__":
         for filename in files:
             if 'qi' in filename:
                 metrics_dict=mine_qi_logfile(filename)
+                if not metrics_dict:
+                    continue
+                    
                 w=csv.DictWriter(f,metrics_dict.keys())
 
                 if not header_written:

@@ -97,8 +97,6 @@ class ctbb_daemon:
             self.queue_mutex.lock(); 
         
             self.refresh_queue()
-
-            logging.info(str(self.queue))
             
             for dev in self.get_empty_devices():
                 if self.queue:
