@@ -35,10 +35,11 @@
         </tr>
 
         
-        {% endfor %} <!-- kernels -->        
+        {% endfor %} <!-- kernels -->
+        </table>
         {% endfor %} <!-- patients -->
 
-        </table>
+
         
 
     </body>
