@@ -1,6 +1,6 @@
 # Pipeline Datasets
 
-This document is best viewed using a MARKDOWN interpreter/compiler.  That or just (read this file on github)[]
+This document is best viewed using a MARKDOWN interpreter/compiler.  That or just [read this file on github](https://github.com/captnjohnny1618/CTBB_Pipeline_Package/blob/master/CTBB_Pipeline/data/README.md)
 
 ## Intro
 Pipeline datasets are intended to organize any and all relevant data.  This potentially includes raw data, image data, segmentations, annotations, and all other processing information that can be applied.  Often however, we will share only a subset of this (i.e. only image data) for either simiplicity or PHI-related reasons.
