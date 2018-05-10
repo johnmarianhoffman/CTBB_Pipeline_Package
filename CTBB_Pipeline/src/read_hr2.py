@@ -18,7 +18,6 @@ def usage():
     )
     sys.exit()
 
-
 def read_hr2(filepath):
 
     hr2_dict={}
@@ -28,7 +27,7 @@ def read_hr2(filepath):
         # Ensure we have an HR2 file
         magic_number=f.read(3)
         if magic_number!=b"HR2":
-            print("File is not an hr2 file. Exiting")
+            #print("File is not an hr2 file. Exiting")
             sys.exit(1)
 
         # Read the file into memory
@@ -36,7 +35,7 @@ def read_hr2(filepath):
             # Get tag
             chunk_tag_size=int.from_bytes(f.read(1),byteorder='little')            
             chunk_tag=f.read(chunk_tag_size)
-            print(str(chunk_tag,'utf-8'))
+            #print(str(chunk_tag,'utf-8'))
 
             # Get value
             # Handle all tags *except* image data (size=uint16)
@@ -47,6 +46,7 @@ def read_hr2(filepath):
             # Handle image data tag (size=uint32)
             else:
                 chunk_val_size=int.from_bytes(f.read(4),byteorder='little')
+                header_end_byte=f.tell()
                 chunk_val=f.read(chunk_val_size)
                 hr2_dict[str(chunk_tag,'utf-8')]=chunk_val
                 break
@@ -59,9 +59,14 @@ def read_hr2(filepath):
         hr2_dict['Size']=[int(x) for x in hr2_dict['Size'].split(' ')]
         hr2_dict['ImageData']=np.fromstring(hr2_dict['ImageData'],dtype='int16')
         hr2_dict['ImageData']=hr2_dict['ImageData'].reshape(hr2_dict['Size'][2],hr2_dict['Size'][1],hr2_dict['Size'][0])
+
+        # Read the raw header data into our dictionary (will be used to save a copy for easy-rewrapping)
+        with open(filepath,'rb') as f:
+            hr2_dict['HeaderData']=f.read(header_end_byte)
+
+        #print(hr2_dict['HeaderData'])
             
         return hr2_dict
-
     pass
 
 def main(argc,argv):
@@ -79,8 +84,14 @@ def main(argc,argv):
 
     # Write image data to disk
     hr2_dict['ImageData'].astype('float32').tofile(output_filepath);
+
+    # Write header to disk for easy repackaging
+    output_dirpath=os.path.dirname(output_filepath)
+    hr2_header_output_filepath=os.path.splitext(os.path.basename(output_filepath))[0]+".hr2"
+    with open(os.path.join(output_dirpath,hr2_header_output_filepath),'wb') as f:
+        f.write(hr2_dict['HeaderData'])
     
-    print('Done converting HR2 to binary file of floats')
+    #print('Done converting HR2 to binary file of floats')
     
 if __name__=="__main__":
     main(len(sys.argv),sys.argv)
