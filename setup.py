@@ -22,6 +22,7 @@ setup(name='CTBB_Pipeline',
           "xmltodict",
           ],
       scripts=[
+          "bin/ctbb_copy_pipeline_dataset",          
           "bin/ctbb_pipeline_daemon",
           "bin/ctbb_pipeline_diff",
           "bin/ctbb_pipeline_kill",

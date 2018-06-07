@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+
+
+def usage():
+    print(
+        """
+        Usage: ctbb_copy_pipeline_dataset /path/to/source_pipeline_library /path/to/destination_pipeline_library [what to copy]
+
+        NOTE: THIS SCRIPT WILL ONLY RUN ON UNIX/LINUX SYSTEMS        
+        
+        Copies the source pipeline directory over to the destination pipeline directory
+        using the optional 'what to copy' specifier.  Without specifying 'what to copy'
+        the entire directory will be copied.
+
+        Supported options for copying subsets of the pipeline directory are:
+
+        IMAGE
+        QA
+        RAW
+        N ###
+        
+        By default, we exclude log directories and ROI information. Future versions
+        of this script may add support for copying these file types.
+
+        N should be followed by the number of cases to copy from the
+        library. See example below.  Exclude to copy all cases.
+
+        Example call:
+          $ python prep_pipeline_dataset.py Casanova:/data/jhoffman_dissertation/DefAS_Full_WFBP ~/test IMAGE QA N 100
+        
+        Copyright (c) John Hoffman 2018
+        """
+    )
+    sys.exit()
+
+def sample_cases(source_dir,n_cases):
+    # Grab the case list:
+    cmd='rsync {} /tmp/'.format(os.path.join(source_dir,'case_list.txt'))
+    os.system(cmd)
+    with open('/tmp/case_list.txt','r') as f:
+        s=f.read()
+        s=s.splitlines()
+
+    # Extract only the pipeline_ids (toss the paths)
+    pipeline_ids=[]
+    for item in s:
+        elems=item.split(',')
+        pipeline_ids.append(elems[1]+'*')
+
+    # Sample the required number of cases to exclude
+    import random
+    n_cases_to_exclude=len(pipeline_ids)-int(n_cases)
+
+    if n_cases_to_exclude>0:
+        excluded_cases=random.sample(pipeline_ids,n_cases_to_exclude)
+    else:
+        excluded_cases=[]
+
+    print("Randomly sampling {} cases to exclude from copy.".format(n_cases_to_exclude))
+    print("Excluding the following cases:\n{}".format('\n'.join(['    '+x for x in excluded_cases])))
+        
+    return excluded_cases
+    
+def main(argc,argv):
+
+    # Set some defaults
+    copying_everything=True
+
+    # Parse inputs
+    if argc<3:
+        usage()
+        
+    source_dir = argv[1]
+    dest_dir   = argv[2]
+
+    if argc>=4:
+        copying_everything=False
+        what_to_copy = argv[3:]
+
+    # Feedback for the user
+    print('Source pipeline library:       {}'.format(source_dir))
+    print('Destination pipeline library:  {}'.format(dest_dir))
+
+    if not copying_everything:
+        print('Copying the following:         {}'.format(",".join(what_to_copy)))
+
+    # Configure what to include/exclude based on user input
+    raw_types=['*.ptr','*.PTR','*.ima','*.IMA','raw']
+    image_types=['*.img','*.hr2']
+    qa_types=['*.html','*.png','qa']
+    default_excludes=['*.log','log','*.roi','*.out']
+
+    excludes=default_excludes
+    
+    if 'IMAGE' not in what_to_copy:
+        excludes=excludes+image_types
+
+    if 'RAW' not in what_to_copy:
+        excludes=excludes+raw_types
+
+    if 'QA' not in what_to_copy:
+        excludes=excludes+qa_types
+
+    if 'N' in what_to_copy:
+        n_cases_location = what_to_copy.index('N')
+        n_cases = what_to_copy[n_cases_location+1]
+        excludes = excludes + sample_cases(source_dir,n_cases)
+
+    # Build the command to pass to rsync
+    cmd='rsync -rv {} {}'.format(source_dir,dest_dir)
+    for i in excludes:
+        cmd += ' --exclude={}'.format(i)
+
+    print(cmd)
+    os.system(cmd)
+
+    # Write list of excludes to destination directory
+    with open(os.path.join(dest_dir,'excluded_files.txt'),'w') as f:
+        f.write('\n'.join(excludes))
+    
+if __name__=="__main__":
+
+    main(len(sys.argv),sys.argv)
